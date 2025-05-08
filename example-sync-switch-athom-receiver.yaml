@@ -4,7 +4,7 @@ substitutions:
   log_level: WARN
 
 packages:
-  Athom Technology.Smart Plug V3: github://athom-tech/esp32-configs/athom-smart-plug.yaml
+  Athom Technology.Smart Plug V3: github://AminKAli/esphome-syncswitch/esp32-configs/athom-smart-plug.yaml
 
 external_components:
   - source: github://AminKAli/esphome-syncswitch/components
