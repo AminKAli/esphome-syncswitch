@@ -29,6 +29,8 @@ async def to_code(config):
         mac = config[CONF_PEER_MAC]
         cg.add(var.set_peer_mac(mac))
 
+    cg.add(cg.register_component(var, config))
+
     # Register the 'send_espnow' service
     cg.add(var.register_service("send_espnow", {"message": cg.std_string}))
 
