@@ -5,7 +5,6 @@ from esphome import automation
 
 DEPENDENCIES = ["esp32"]
 AUTO_LOAD = ["logger"]
-CODEOWNERS = ["@AminKAli"]
 
 basic_espnow_ns = cg.esphome_ns.namespace("basic_espnow")
 BasicESPNow = basic_espnow_ns.class_("BasicESPNow", cg.Component)
@@ -22,16 +21,15 @@ CONFIG_SCHEMA = cv.Schema({
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
-
     await cg.register_component(var, config)
 
     if CONF_PEER_MAC in config:
-        cg.add(var.set_peer_mac(config[CONF_PEER_MAC]))
+        mac = config[CONF_PEER_MAC]
+        mac_expr = cg.std_array(cg.uint8, 6)([cg.RawExpression(str(b)) for b in mac])
+        cg.add(var.set_peer_mac(mac_expr))
 
-    # Register service to send messages
     cg.add(var.register_service("send_espnow", {"message": cg.std_string}))
 
-    # Set up on_message triggers
     if CONF_ON_MESSAGE in config:
         for conf in config[CONF_ON_MESSAGE]:
             trigger = cg.new_Pvariable(conf[automation.CONF_TRIGGER_ID], OnMessageTrigger(var))

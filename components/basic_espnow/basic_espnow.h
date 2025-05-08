@@ -11,9 +11,9 @@ class BasicESPNow;
 
 class OnMessageTrigger : public Trigger<std::string> {
  public:
-  explicit OnMessageTrigger(BasicESPNow *parent) { this->parent_ = parent; }
- protected:
-  BasicESPNow *parent_;
+  explicit OnMessageTrigger(BasicESPNow *parent) {
+    parent->add_on_message_trigger(this);
+  }
 };
 
 class BasicESPNow : public Component {
@@ -21,9 +21,14 @@ class BasicESPNow : public Component {
   void setup() override;
   void loop() override {}
 
-  void set_peer_mac(std::array<uint8_t, 6> mac) { memcpy(this->peer_mac_, mac.data(), 6); }
+  void set_peer_mac(std::array<uint8_t, 6> mac) {
+    this->peer_mac_ = mac;
+  }
 
-  void register_service(const std::string &name, const std::map<std::string, std::string> &args);
+  void register_service(const std::string &name, const std::map<std::string, std::string> &) {
+    register_service(&BasicESPNow::send_espnow, name, {"message"});
+  }
+
   void send_espnow(std::string message);
 
   void add_on_message_trigger(OnMessageTrigger *trigger) {
@@ -36,7 +41,7 @@ class BasicESPNow : public Component {
 
   void handle_received(const std::string &msg);
 
-  uint8_t peer_mac_[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+  std::array<uint8_t, 6> peer_mac_{{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}};
   static BasicESPNow *instance_;
   std::vector<OnMessageTrigger *> triggers_;
 };

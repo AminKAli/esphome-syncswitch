@@ -26,7 +26,7 @@ void BasicESPNow::setup() {
   instance_ = this;
 
   esp_now_peer_info_t peer{};
-  memcpy(peer.peer_addr, peer_mac_, 6);
+  memcpy(peer.peer_addr, this->peer_mac_.data(), 6);
   peer.channel = 0;
   peer.encrypt = false;
 
@@ -38,28 +38,23 @@ void BasicESPNow::setup() {
 }
 
 void BasicESPNow::send_espnow(std::string message) {
-  esp_now_send(this->peer_mac_, (const uint8_t *)message.data(), message.size());
-}
-
-void BasicESPNow::register_service(const std::string &name, const std::map<std::string, std::string> &) {
-  register_service(&BasicESPNow::send_espnow, name, {"message"});
+  esp_now_send(this->peer_mac_.data(), (const uint8_t *)message.data(), message.size());
 }
 
 void BasicESPNow::recv_cb(const uint8_t *mac, const uint8_t *data, int len) {
-  if (instance_) {
-    std::string msg((const char *)data, len);
-    ESP_LOGI("basic_espnow", "Received: %s", msg.c_str());
-    instance_->handle_received(msg);
-  }
+  if (instance_ == nullptr) return;
+  std::string msg((const char *)data, len);
+  ESP_LOGI("basic_espnow", "Received: %s", msg.c_str());
+  instance_->handle_received(msg);
 }
 
 void BasicESPNow::send_cb(const uint8_t *mac, esp_now_send_status_t status) {
-  ESP_LOGD("basic_espnow", "Send %s", status == ESP_NOW_SEND_SUCCESS ? "succeeded" : "failed");
+  ESP_LOGD("basic_espnow", "Send status: %s", status == ESP_NOW_SEND_SUCCESS ? "SUCCESS" : "FAIL");
 }
 
 void BasicESPNow::handle_received(const std::string &msg) {
-  for (auto *trig : this->triggers_) {
-    trig->trigger(msg);
+  for (auto *trigger : this->triggers_) {
+    trigger->trigger(msg);
   }
 }
 
