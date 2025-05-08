@@ -1,0 +1,79 @@
+substitutions:
+  name: "syncswitch-receiver"
+  friendly_name: "SyncSwitch Receiver"
+  log_level: WARN
+
+packages:
+  Athom Technology.Smart Plug V3: github://athom-tech/esp32-configs/athom-smart-plug.yaml
+
+external_components:
+  - source: github://AminKAli/esphome-syncswitch/components
+    components: [basic_espnow]
+
+esphome:
+  name: ${name}
+  name_add_mac_suffix: false
+  friendly_name: ${friendly_name}
+
+api:
+  encryption:
+    key: ijhnYwoN4UN/B4xDBbkRQkSR6v2qJCSZ/p+8sl3rxgc=
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  fast_connect: "${wifi_fast_connect}"
+  domain: "${dns_domain}"
+
+captive_portal:
+
+web_server: {}
+
+logger:
+  level: ${log_level}
+
+custom_component:
+  - lambda: |-
+      auto espnow = new esphome::basic_espnow::BasicESPNow();
+      espnow->set_on_message_callback([](const uint8_t *mac, const uint8_t *data, int len) {
+        std::string msg((const char*)data, len);
+        ESP_LOGI("espnow", "Received from %02x:%02x:%02x:%02x:%02x:%02x: %s",
+          mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], msg.c_str());
+      });
+      return {espnow};
+
+# globals:
+#   - id: last_heartbeat_time
+#     type: unsigned long
+#     restore_value: no
+#     initial_value: '0'
+#   - id: longest_heartbeat_time
+#     type: unsigned long
+#     restore_value: no
+#     initial_value: '0'
+
+# interval:
+#   - interval: 1s
+#     then:
+#       - lambda: |-
+#           unsigned long delay = millis() - id(last_heartbeat_time);
+#           if (delay > 2000) {
+#             id(relay).turn_off();
+#             ESP_LOGW("my_tag", "Turning off relay. delay: %ld, longest delay: %ld", delay, id(longest_heartbeat_time));
+#           }
+#           if (delay > id(longest_heartbeat_time)) {
+#             id(longest_heartbeat_time) = delay;
+#           }
+
+# espnow_proxy:
+#   id: espnow_proxy_id
+#   peers:
+#     - mac_address: F4:12:FA:5A:94:80
+#       name_prefix: "transmitter"
+#   on_packet_data:
+#     - logger.log:
+#         format: "Received broadcast msg"
+#         level: WARN
+#     - lambda: |-
+#         id(last_heartbeat_time) = millis();
+#         id(relay).turn_on();
