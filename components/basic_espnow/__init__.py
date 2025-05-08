@@ -24,9 +24,11 @@ async def to_code(config):
     await cg.register_component(var, config)
 
     if CONF_PEER_MAC in config:
-        mac = config[CONF_PEER_MAC]
-        mac_expr = cg.std_array(cg.uint8, 6)([cg.RawExpression(str(b)) for b in mac])
+        mac_str = config[CONF_PEER_MAC].to_string()
+        mac_ints = [int(x, 16) for x in mac_str.split(":")]
+        mac_expr = cg.RawExpression(f"std::array<uint8_t, 6>{{{', '.join(map(str, mac_ints))}}}")
         cg.add(var.set_peer_mac(mac_expr))
+
 
     cg.add(var.register_service("send_espnow", {"message": cg.std_string}))
 

@@ -4,10 +4,10 @@ substitutions:
   log_level: WARN
 
 packages:
-  Athom Technology.Smart Plug V3: github://AminKAli/esphome-syncswitch/esp32-configs/athom-smart-plug.yaml@main
+  Athom Technology.Smart Plug V3: github://AminKAli/esphome-syncswitch/esp32-configs/athom-smart-plug.yaml@7fd2a991c
 
 external_components:
-  - source: github://AminKAli/esphome-syncswitch@c4aff1621
+  - source: github://AminKAli/esphome-syncswitch@7fd2a991c
     components: [basic_espnow]
 
 esphome:
@@ -38,15 +38,6 @@ basic_espnow:
   on_message:
     - lambda: |-
         ESP_LOGI("espnow", "Received: %s", message.c_str());
-
-# basic_espnow:
-#   peer_mac: "24:6F:28:12:34:56"
-#   on_message:
-#     - lambda: |-
-#         ESP_LOGI("espnow", "Received in YAML: %s", message.c_str());
-#         if (message == "ping") {
-#           id(my_led).turn_on();
-#         }
 
 # globals:
 #   - id: last_heartbeat_time
