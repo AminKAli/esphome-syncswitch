@@ -20,9 +20,10 @@ CONFIG_SCHEMA = cv.Schema({
     cv.Optional(CONF_ON_MESSAGE): automation.validate_automation({cv.GenerateID(): cv.use_id(BasicESPNow)}),
 }).extend(cv.COMPONENT_SCHEMA)
 
-@cg.register_component
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
+
+    await cg.register_component(var, config)
 
     if CONF_PEER_MAC in config:
         cg.add(var.set_peer_mac(config[CONF_PEER_MAC]))
