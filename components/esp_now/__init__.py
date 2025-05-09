@@ -1,4 +1,3 @@
-# components/esp_now/__init__.py
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome import automation
@@ -19,12 +18,14 @@ ESPNowComponent = esp_now_ns.class_("ESPNowComponent", cg.Component)
 ESPNowPeer = esp_now_ns.class_("ESPNowPeer")
 ESPNowMessageReceivedTrigger = esp_now_ns.class_("ESPNowMessageReceivedTrigger", automation.Trigger.template(cg.std_string, cg.std_string))
 ESPNowSendAction = esp_now_ns.class_("ESPNowSendAction", automation.Action)
+ESPNowBroadcastAction = esp_now_ns.class_("ESPNowBroadcastAction", automation.Action)
 
 CONF_ESP_NOW_ID = "esp_now_id"
 CONF_PEERS = "peers"
 CONF_CHANNEL = "channel"
 CONF_ENCRYPTION_KEY = "encryption_key"
 CONF_ON_MESSAGE_RECEIVED = "on_message_received"
+CONF_BROADCAST = "broadcast"
 
 def validate_mac_address(value):
     """Validate the format of the MAC address."""
@@ -76,7 +77,7 @@ async def to_code(config):
         await automation.build_automation(trigger, [(cg.std_string, "mac"), (cg.std_string, "data")], conf)
 
 @automation.register_action(
-    "basic_espnow.send",
+    "esp_now.send",
     ESPNowSendAction,
     cv.Schema({
         cv.Required(CONF_ID): cv.use_id(ESPNowComponent),
@@ -91,5 +92,22 @@ async def esp_now_send_to_code(config, action_id, template_arg, args):
     template_ = await cg.templatable(config[CONF_DATA], args, cg.std_string)
     cg.add(var.set_data(template_))
     cg.add(var.set_mac_address(config[CONF_MAC_ADDRESS]))
+    
+    return var
+
+@automation.register_action(
+    "esp_now.broadcast",
+    ESPNowBroadcastAction,
+    cv.Schema({
+        cv.Required(CONF_ID): cv.use_id(ESPNowComponent),
+        cv.Required(CONF_DATA): cv.templatable(cv.string),
+    })
+)
+async def esp_now_broadcast_to_code(config, action_id, template_arg, args):
+    paren = await cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, paren)
+    
+    template_ = await cg.templatable(config[CONF_DATA], args, cg.std_string)
+    cg.add(var.set_data(template_))
     
     return var
