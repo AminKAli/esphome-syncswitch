@@ -8,6 +8,10 @@ namespace basic_espnow {
 
 BasicESPNow *BasicESPNow::instance_ = nullptr;
 
+void BasicESPNow::send_espnow(std::string message) {
+  esp_now_send(this->peer_mac_.data(), (const uint8_t *)message.data(), message.size());
+}
+
 void BasicESPNow::setup() {
   esp_netif_init();
   esp_event_loop_create_default();
@@ -34,14 +38,11 @@ void BasicESPNow::setup() {
     esp_now_add_peer(&peer);
   }
 
-  this->register_service($BasicESPNow::send_espnow, "send_espnow", {"message"});
+  this->register_service(&BasicESPNow::send_espnow, "send_espnow", {"message"});
 
   ESP_LOGI("basic_espnow", "ESP-NOW setup complete");
 }
 
-void BasicESPNow::send_espnow(std::string message) {
-  esp_now_send(this->peer_mac_.data(), (const uint8_t *)message.data(), message.size());
-}
 
 void BasicESPNow::recv_cb(const uint8_t *mac, const uint8_t *data, int len) {
   if (instance_ == nullptr) return;

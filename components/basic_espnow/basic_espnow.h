@@ -25,9 +25,9 @@ class BasicESPNow : public Component {
     this->peer_mac_ = mac;
   }
 
-  void register_service(const std::string &name, const std::map<std::string, std::string> &) {
-    register_service(&BasicESPNow::send_espnow, name, {"message"});
-  }
+  // void register_service(const std::string &name, const std::map<std::string, std::string> &) {
+  //   register_service(&BasicESPNow::send_espnow, name, {"message"});
+  // }
 
   void send_espnow(std::string message);
 
