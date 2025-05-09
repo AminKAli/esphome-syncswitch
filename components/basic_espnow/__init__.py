@@ -30,7 +30,7 @@ async def to_code(config):
     #     cg.add(var.set_peer_mac(mac_expr))
 
 
-    cg.add(var.register_service("send_espnow", {"message": cg.std_string}))
+    cg.add(cg.register_service("send_espnow", {"message": cg.std_string}))
 
     if CONF_ON_MESSAGE in config:
         for conf in config[CONF_ON_MESSAGE]:
