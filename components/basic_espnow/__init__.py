@@ -29,9 +29,6 @@ async def to_code(config):
     #     mac_expr = cg.RawExpression(f"std::array<uint8_t, 6>{{{', '.join(map(str, mac_ints))}}}")
     #     cg.add(var.set_peer_mac(mac_expr))
 
-
-    cg.add(cg.register_service("send_espnow", {"message": cg.std_string}))
-
     if CONF_ON_MESSAGE in config:
         for conf in config[CONF_ON_MESSAGE]:
             trigger = cg.new_Pvariable(conf[automation.CONF_TRIGGER_ID], OnMessageTrigger(var))
