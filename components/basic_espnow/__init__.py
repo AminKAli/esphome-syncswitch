@@ -22,8 +22,6 @@ CONFIG_SCHEMA = cv.Schema({
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
-    var = cg.new_Pvariable(config[CONF_ID])
-    await cg.register_component(var, config)
 
     # if CONF_PEER_MAC in config:
     #     mac_str = config[CONF_PEER_MAC].to_string()
