@@ -34,6 +34,8 @@ void BasicESPNow::setup() {
     esp_now_add_peer(&peer);
   }
 
+  this->register_service($BasicESPNow::send_espnow, "send_espnow", {"message"});
+
   ESP_LOGI("basic_espnow", "ESP-NOW setup complete");
 }
 
